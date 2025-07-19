@@ -15,6 +15,7 @@ router.get('/', async (req, res) => {
 
 // Ruta POST para crear una incidencia
 router.post('/', async (req, res) => {
+    console.log('Body recibido:', req.body); // 👈 Agrega esto
     console.log('Recibiendo solicitud para crear una incidencia');
     try {
         const nuevaIncidencia = new Incidencia(req.body);  // Crear nueva incidencia a partir del body de la solicitud
@@ -23,6 +24,23 @@ router.post('/', async (req, res) => {
     } catch (error) {
         res.status(400).json({ mensaje: 'Error al crear la incidencia', error });
     }
+});
+router.get('/', async (req, res) => {
+    const { estado, prioridad } = req.query;
+    const filtro = {};
+    if (estado) filtro.estado = estado;
+    if (prioridad) filtro.prioridad = prioridad;
+
+    const incidencias = await Incidencia.find(filtro);
+    res.json(incidencias);
+});
+router.delete('/:id', async (req, res) => {
+    await Incidencia.findByIdAndDelete(req.params.id);
+    res.json({ mensaje: 'Incidencia eliminada' });
+});
+router.patch('/:id', async (req, res) => {
+    const incidencia = await Incidencia.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(incidencia);
 });
 
 module.exports = router;
